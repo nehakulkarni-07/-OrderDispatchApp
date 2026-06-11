@@ -6,3 +6,4 @@ modeler-merge-marker
 node_modules/
 *.launch
 log/
+javascriptsource/**/node_modules/ 
