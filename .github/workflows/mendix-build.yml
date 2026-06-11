@@ -26,7 +26,7 @@ jobs:
           set JAVA="C:\Program Files\Microsoft\jdk-21.0.10.7-hotspot\bin\java.exe"
           set JAVAHOME="C:\Program Files\Microsoft\jdk-21.0.10.7-hotspot"
           if not exist releases mkdir releases
-          %MXBUILD% --target=package ^
+          echo N | %MXBUILD% --target=package ^
             --output=releases\%APP_NAME%-%VERSION%-build%GITHUB_RUN_NUMBER%.mda ^
             --java-home=%JAVAHOME% ^
             --java-exe-path=%JAVA% ^
