@@ -19,20 +19,17 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Configure Java (Temurin 11)
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '11'
-
       - name: Build the .mda with MxBuild
         shell: cmd
         run: |
-          set MXBUILD="C:\Program Files\Mendix\%MENDIX_VERSION%\modeler\mxbuild.exe"
+          set MXBUILD="C:\Program Files\Mendix\10.24.16.96987\modeler\mxbuild.exe"
+          set JAVA="C:\Program Files\Microsoft\jdk-21.0.10.7-hotspot\bin\java.exe"
+          set JAVAHOME="C:\Program Files\Microsoft\jdk-21.0.10.7-hotspot"
           if not exist releases mkdir releases
           %MXBUILD% --target=package ^
             --output=releases\%APP_NAME%-%VERSION%-build%GITHUB_RUN_NUMBER%.mda ^
-            --java-home="%JAVA_HOME%" --java-exe-path="%JAVA_HOME%\bin\java.exe" ^
+            --java-home=%JAVAHOME% ^
+            --java-exe-path=%JAVA% ^
             %APP_NAME%.mpr
 
       - name: Validate build output
