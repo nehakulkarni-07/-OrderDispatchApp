@@ -68,13 +68,12 @@ jobs:
         shell: cmd
         run: |
           echo Restarting Mendix application...
-          tasklist | findstr /i "mxruntime" && (
+          tasklist | findstr /i "mxruntime"
+          if errorlevel 1 (
+            echo No running mxruntime process found.
+          ) else (
             echo Stopping existing mxruntime process...
             taskkill /F /IM mxruntime.exe
-          ) || (
-            echo No running mxruntime process found.
           )
-          echo Starting Mendix Runtime with new .mda...
-          REM Note: Update path below to your actual mxruntime executable
-          REM start "" "C:\Program Files\Mendix\10.24.16.96987\runtime\mxruntime.exe" "%DEPLOY_DIR%\%APP_NAME%.mda"
           echo Restart step completed (placeholder - configure mxruntime path)
+          exit /b 0
