@@ -1,4 +1,4 @@
-name: Mendix CI - Build .mda
+name: Mendix CI - Build and Deploy Local
 
 on:
   push:
@@ -11,6 +11,7 @@ env:
   APP_NAME: OrderDispatchApp
   MENDIX_VERSION: 10.24.16.96987
   VERSION: 1.0.0
+  DEPLOY_DIR: C:\MendixDeploy
 
 jobs:
   build:
@@ -42,3 +43,38 @@ jobs:
           name: ${{ env.APP_NAME }}-mda-${{ github.run_number }}
           path: releases/*.mda
           retention-days: 30
+
+      - name: Backup existing .mda
+        shell: cmd
+        run: |
+          if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
+          if not exist "%DEPLOY_DIR%\backup" mkdir "%DEPLOY_DIR%\backup"
+          if exist "%DEPLOY_DIR%\%APP_NAME%.mda" (
+            echo Backing up existing .mda...
+            move "%DEPLOY_DIR%\%APP_NAME%.mda" "%DEPLOY_DIR%\backup\%APP_NAME%-backup-%GITHUB_RUN_NUMBER%.mda"
+          ) else (
+            echo No existing .mda found, skipping backup.
+          )
+
+      - name: Replace with new .mda
+        shell: cmd
+        run: |
+          echo Copying new build to deployment folder...
+          copy "releases\%APP_NAME%-%VERSION%-build%GITHUB_RUN_NUMBER%.mda" "%DEPLOY_DIR%\%APP_NAME%.mda"
+          echo Deployment folder contents:
+          dir "%DEPLOY_DIR%"
+
+      - name: Restart Mendix App
+        shell: cmd
+        run: |
+          echo Restarting Mendix application...
+          tasklist | findstr /i "mxruntime" && (
+            echo Stopping existing mxruntime process...
+            taskkill /F /IM mxruntime.exe
+          ) || (
+            echo No running mxruntime process found.
+          )
+          echo Starting Mendix Runtime with new .mda...
+          REM Note: Update path below to your actual mxruntime executable
+          REM start "" "C:\Program Files\Mendix\10.24.16.96987\runtime\mxruntime.exe" "%DEPLOY_DIR%\%APP_NAME%.mda"
+          echo Restart step completed (placeholder - configure mxruntime path)
